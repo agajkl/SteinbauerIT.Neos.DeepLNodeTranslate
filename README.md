@@ -32,5 +32,6 @@ SteinbauerIT:
 
 ## Author
 
-* E-Mail: mail@patriceckhart.com
-* URL: http://www.patriceckhart.com 
+* Company: STEINBAUER IT GmbH
+* E-Mail: patric.eckhart@steinbauer-it.com
+* URL: http://www.steinbauer-it.com
