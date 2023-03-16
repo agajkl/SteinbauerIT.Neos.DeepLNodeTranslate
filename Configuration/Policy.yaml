@@ -1,0 +1,16 @@
+privilegeTargets:
+  Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege:
+    'SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepLControllerActions':
+      matcher: 'method(SteinbauerIT\Neos\DeepLNodeTranslate\Controller\Module\DeepLController->.*Action())'
+    'SteinbauerIT.Neos.DeepLNodeTranslate:Api.TranslateControllerActions':
+      matcher: 'method(SteinbauerIT\Neos\DeepLNodeTranslate\Controller\Api\TranslateController->.*Action())'
+
+roles:
+  'Neos.Neos:AbstractEditor':
+    privileges:
+      -
+        privilegeTarget: 'SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepLControllerActions'
+        permission: GRANT
+      -
+        privilegeTarget: 'SteinbauerIT.Neos.DeepLNodeTranslate:Api.TranslateControllerActions'
+        permission: GRANT

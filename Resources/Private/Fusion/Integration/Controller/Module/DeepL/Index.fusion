@@ -1,0 +1,70 @@
+SteinbauerIT.Neos.DeepLNodeTranslate.Module.DeepLController.index = SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index
+
+prototype(SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index) < prototype(Neos.Fusion:Component) {
+
+    nodeTypes = ${Configuration.setting('SteinbauerIT.Neos.DeepLNodeTranslate.nodeTypes')}
+    contentDimensions = ${Configuration.setting('Neos.ContentRepository.contentDimensions')}
+
+    renderer = afx`
+        <style>{".neos.neos-module select { width:calc(100% - 10px); margin-right:10px; } legend { color:#FFFFFF; } "}</style>
+        <SteinbauerIT.Neos.DeepLNodeTranslate:Component.DefaultLayout>
+            <Neos.Fusion.Form:Form form.target.action="translate" >
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <legend>Choose Node type</legend>
+                            <div class="d-block">
+                                <SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index.Select name="nodeType" label="NodeType" items={props.nodeTypes} />
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <legend>Source</legend>
+                                    <Neos.Fusion:Loop items={props.contentDimensions} itemName="contentDimension" itemKey="contentDimensionKey" >
+                                        <div class="col">
+                                            <SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index.Select name={'source[' + contentDimensionKey + '][]'} label={contentDimension.label} items={contentDimension.presets} />
+                                        </div>
+                                    </Neos.Fusion:Loop>
+                                </div>
+                                <div class="col-md-6">
+                                    <legend>Target</legend>
+                                    <Neos.Fusion:Loop items={props.contentDimensions} itemName="contentDimension" itemKey="contentDimensionKey" >
+                                        <div class="col">
+                                            <SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index.Select name={'target[' + contentDimensionKey + '][]'} label={contentDimension.label} items={contentDimension.presets} />
+                                        </div>
+                                    </Neos.Fusion:Loop>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="neos-footer">
+                    <Neos.Fusion.Form:Button attributes.class="neos-button neos-button-primary" >
+                        Start translation
+                    </Neos.Fusion.Form:Button>
+                </div>
+            </Neos.Fusion.Form:Form>
+        </SteinbauerIT.Neos.DeepLNodeTranslate:Component.DefaultLayout>
+    `
+}
+
+prototype(SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index.Select) < prototype(Neos.Fusion:Component) {
+
+    name = false
+    label = false
+    required = true
+
+    items = false
+
+    renderer = afx`
+        <Neos.Fusion.Form:Neos.BackendModule.FieldContainer field.name={props.name} label={props.label} >
+            <Neos.Fusion.Form:Select attributes.required={props.required} >
+                <Neos.Fusion.Form:Select.Option attributes.selected="selected" attributes.disabled="disabled" >Choose {props.label}</Neos.Fusion.Form:Select.Option>
+                <Neos.Fusion:Loop items={props.items} >
+                    <Neos.Fusion.Form:Select.Option option.value={itemKey} >{itemKey}</Neos.Fusion.Form:Select.Option>
+                </Neos.Fusion:Loop>
+            </Neos.Fusion.Form:Select>
+        </Neos.Fusion.Form:Neos.BackendModule.FieldContainer>
+    `
+}

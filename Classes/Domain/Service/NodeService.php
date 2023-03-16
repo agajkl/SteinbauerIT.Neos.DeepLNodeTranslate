@@ -1,0 +1,169 @@
+<?php
+namespace SteinbauerIT\Neos\DeepLNodeTranslate\Domain\Service;
+
+use Neos\Flow\Annotations as Flow;
+
+use Neos\Eel\FlowQuery\FlowQuery;
+use Neos\Eel\FlowQuery\Operations;
+
+use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Repository\NodeDataRepository;
+use Neos\ContentRepository\Domain\Service\ContextFactoryInterface;
+use Neos\ContentRepository\Domain\Service\NodeTypeManager;
+use Neos\ContentRepository\Domain\Service\NodeService as NeosNodeService;
+use Neos\Neos\Utility\NodeUriPathSegmentGenerator;
+use Neos\ContentRepository\Domain\Model\Node;
+use Neos\Flow\Utility\Now;
+use Neos\ContentRepository\Domain\Service\ContentDimensionPresetSourceInterface;
+
+class NodeService
+{
+
+    /**
+     * @Flow\Inject
+     * @var ContextFactoryInterface
+     */
+    protected $contextFactory;
+
+    /**
+     * @Flow\Inject
+     * @var NodeTypeManager
+     */
+    protected $nodeTypeManager;
+
+    /**
+     * @Flow\Inject
+     * @var NeosNodeService
+     */
+    protected $nodeService;
+
+    /**
+     * @Flow\Inject
+     * @var NodeUriPathSegmentGenerator
+     */
+    protected $nodeUriPathSegmentGenerator;
+
+    /**
+     * @Flow\Inject
+     * @var ContentDimensionPresetSourceInterface
+     */
+    protected $contentDimensionPresetSource;
+
+    /**
+     * @Flow\Inject
+     * @var DeepLService
+     */
+    protected $deepLService;
+
+    /**
+     * @var array
+     */
+    protected $settings = [];
+
+    /**
+     * @param array $settings
+     * @return void
+     */
+    public function injectSettings(array $settings): void
+    {
+        $this->settings = $settings;
+    }
+
+    /**
+     * @param string $nodeType
+     * @param array $source
+     * @param array $target
+     * @return void
+     */
+    public function translateNodes(string $nodeType, array $source, array $target): void
+    {
+        $nodes = $this->getNodesByNodeTypeAndDimensions($nodeType, $source);
+        if(!empty($nodes)) {
+            foreach ($nodes as $node) {
+                $translatedProperties = $this->translateProperties((array) $node->getProperties(), $this->getDefinedPropertiesForNodeTypeFromConfiguration($node->getNodeType()->getName()), $source, $target);
+                $this->createTranslatedNode($node, $translatedProperties, $source, $target);
+            }
+        }
+    }
+
+    /**
+     * @param Node $node
+     * @param array $translatedProperties
+     * @param array $source
+     * @param array $target
+     * @return void
+     */
+    private function createTranslatedNode(Node $node, array $translatedProperties, array $source, array $target): void
+    {
+        $context = $this->contextFactory->create(
+            [
+                'workspaceName' => 'live',
+                'currentDateTime' => new Now(),
+                'dimensions' => array_merge_recursive($target, $source),
+                'targetDimensions' => [array_key_first($target) => $target[array_key_first($target)][array_key_first($target[array_key_first($target)])]]
+            ]
+        );
+        $targetNode = $context->getNodeByIdentifier($node->getNodeAggregateIdentifier()->__toString());
+        $newNode = $context->adoptNode($targetNode);
+        if(!empty($translatedProperties)) {
+            foreach ($translatedProperties as $translatedPropertyKey => $translatedProperty) {
+                $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+            }
+        }
+    }
+
+    /**
+     * @param string $nodeType
+     * @param array $source
+     * @return array
+     */
+    private function getNodesByNodeTypeAndDimensions(string $nodeType, array $source): array
+    {
+        $context = $this->contextFactory->create(
+            [
+                'workspaceName' => 'live',
+                'currentDateTime' => new Now(),
+                'dimensions' => [$source]
+            ]
+        );
+        return (new FlowQuery(array($context->getCurrentSiteNode())))->find('[instanceof ' . $nodeType .']')->context(['workspaceName' => 'live'])->sort('_index', 'ASC')->get();
+    }
+
+    /**
+     * @param string $nodeType
+     * @return array
+     */
+    private function getDefinedPropertiesForNodeTypeFromConfiguration(string $nodeType): array
+    {
+        $nodeTypes = $this->settings['nodeTypes'];
+        if(!empty($nodeTypes)) {
+            foreach ($nodeTypes as $itemKey => $item) {
+                if($itemKey === $nodeType) {
+                    return $item['properties'];
+                }
+            }
+        }
+        return [];
+    }
+
+    /**
+     * @param array $nodeProperties
+     * @param array $definedProperties
+     * @param array $source
+     * @param array $target
+     * @return array
+     */
+    private function translateProperties(array $nodeProperties, array $definedProperties, array $source, array $target): array
+    {
+        $result = [];
+        foreach ($definedProperties as $definedProperty) {
+            if(array_key_exists($definedProperty, $nodeProperties)) {
+                if(is_string($nodeProperties[$definedProperty])) {
+                    $result[$definedProperty] = $this->deepLService->translate($nodeProperties[$definedProperty], $source[array_key_first($source)][array_key_first($source[array_key_first($source)])], $target[array_key_first($target)][array_key_first($target[array_key_first($target)])]);
+                }
+            }
+        }
+        return $result;
+    }
+
+}
