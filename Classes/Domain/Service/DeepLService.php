@@ -29,7 +29,6 @@ class DeepLService
     {
         $translator = new Translator($this->authKey);
         $result = $translator->translateText($sourceValue, $this->setPreferredLanguageShortcut($sourceLanguage), $this->setPreferredLanguageShortcut($targetLanguage));
-        //\Neos\Flow\var_dump($result);
         return $result->text;
     }
 
