@@ -38,6 +38,7 @@ prototype(SteinbauerIT.Neos.DeepLNodeTranslate:Module.DeepL.Index) < prototype(N
                             </div>
                         </div>
                     </div>
+                    <p class="neos-help-inline"><i class="fas fa-info-circle"></i> Please note that the request can take a long time. Increase accordingly.</p>
                 </div>
                 <div class="neos-footer">
                     <Neos.Fusion.Form:Button attributes.class="neos-button neos-button-primary" >
