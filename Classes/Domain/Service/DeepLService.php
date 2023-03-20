@@ -28,8 +28,11 @@ class DeepLService
     public function translate(string $sourceValue, string $sourceLanguage, string $targetLanguage): string
     {
         $translator = new Translator($this->authKey);
-        $result = $translator->translateText($sourceValue, $this->setPreferredLanguageShortcut($sourceLanguage), $this->setPreferredLanguageShortcut($targetLanguage));
-        return $result->text;
+        if(!empty($sourceValue)) {
+            $result = $translator->translateText($sourceValue, $sourceLanguage, $this->setPreferredLanguageShortcut($targetLanguage));
+            return $result->text;
+        }
+        return $sourceValue;
     }
 
     /**

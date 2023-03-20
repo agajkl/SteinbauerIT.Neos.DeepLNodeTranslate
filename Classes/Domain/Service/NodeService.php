@@ -104,10 +104,12 @@ class NodeService
             ]
         );
         $targetNode = $context->getNodeByIdentifier($node->getNodeAggregateIdentifier()->__toString());
-        $newNode = $context->adoptNode($targetNode);
-        if(!empty($translatedProperties)) {
-            foreach ($translatedProperties as $translatedPropertyKey => $translatedProperty) {
-                $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+        if($targetNode !== null) {
+            $newNode = $context->adoptNode($targetNode);
+            if(!empty($translatedProperties)) {
+                foreach ($translatedProperties as $translatedPropertyKey => $translatedProperty) {
+                    $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+                }
             }
         }
     }

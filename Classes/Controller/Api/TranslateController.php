@@ -25,7 +25,7 @@ final class TranslateController extends ActionController
      */
     public function translateAction(string $nodeType, array $source, array $target): void
     {
-        \Neos\Flow\var_dump('foo');
+
     }
 
 }
