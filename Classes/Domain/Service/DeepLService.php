@@ -29,7 +29,7 @@ class DeepLService
     {
         $translator = new Translator($this->authKey);
         if(!empty($sourceValue)) {
-            $result = $translator->translateText($sourceValue, $sourceLanguage, $this->setPreferredLanguageShortcut($targetLanguage));
+            $result = $translator->translateText($sourceValue, $sourceLanguage, $this->setPreferredLanguageShortcut($targetLanguage), ['tag_handling' => 'html']);
             return $result->text;
         }
         return $sourceValue;
