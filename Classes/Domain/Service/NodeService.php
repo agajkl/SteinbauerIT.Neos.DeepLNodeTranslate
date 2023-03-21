@@ -87,6 +87,19 @@ class NodeService
     }
 
     /**
+     * @param string $nodeIdentifier
+     * @param array $source
+     * @param array $target
+     * @return void
+     */
+    public function translateNode(string $nodeIdentifier, array $source, array $target): void
+    {
+        $node = $this->getNodeByNodeIdentifierAndDimensions($nodeIdentifier, $source);
+        $translatedProperties = $this->translateProperties((array) $node->getProperties(), $this->getDefinedPropertiesForNodeTypeFromConfiguration($node->getNodeType()->getName()), $source, $target);
+        $this->createTranslatedNode($node, $translatedProperties, $source, $target);
+    }
+
+    /**
      * @param Node $node
      * @param array $translatedProperties
      * @param array $source
@@ -108,7 +121,9 @@ class NodeService
             $newNode = $context->adoptNode($targetNode);
             if(!empty($translatedProperties)) {
                 foreach ($translatedProperties as $translatedPropertyKey => $translatedProperty) {
-                    $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+                    if($newNode->hasProperty($translatedPropertyKey)) {
+                        $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+                    }
                 }
             }
         }
@@ -129,6 +144,23 @@ class NodeService
             ]
         );
         return (new FlowQuery(array($context->getCurrentSiteNode())))->find('[instanceof ' . $nodeType .']')->context(['workspaceName' => 'live'])->sort('_index', 'ASC')->get();
+    }
+
+    /**
+     * @param string $nodeIdentifier
+     * @param array $source
+     * @return Node
+     */
+    private function getNodeByNodeIdentifierAndDimensions(string $nodeIdentifier, array $source): Node
+    {
+        $context = $this->contextFactory->create(
+            [
+                'workspaceName' => 'live',
+                'currentDateTime' => new Now(),
+                'dimensions' => [$source]
+            ]
+        );
+        return $context->getNodeByIdentifier($nodeIdentifier);
     }
 
     /**
