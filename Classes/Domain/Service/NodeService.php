@@ -149,9 +149,9 @@ class NodeService
     /**
      * @param string $nodeIdentifier
      * @param array $source
-     * @return Node
+     * @return NodeInterface
      */
-    private function getNodeByNodeIdentifierAndDimensions(string $nodeIdentifier, array $source): Node
+    private function getNodeByNodeIdentifierAndDimensions(string $nodeIdentifier, array $source): NodeInterface
     {
         $context = $this->contextFactory->create(
             [
@@ -198,6 +198,17 @@ class NodeService
             }
         }
         return $result;
+    }
+
+    /**
+     * @param array $source
+     * @param array $target
+     * @param string $nodeIdentifier
+     * @return void
+     */
+    public function translateInline(array $source, array $target, string $nodeIdentifier): void
+    {
+        $this->translateNode($nodeIdentifier, $source, $target);
     }
 
 }

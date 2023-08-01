@@ -30,6 +30,8 @@ export default class TranslateDialog extends Component {
 			showDialog: false,
 			source: false,
 			target: false,
+			submit: false,
+			result: false,
 		}
 		this.toggleDialog = this.toggleDialog.bind(this);
 		this.setSource = this.setSource.bind(this);
@@ -37,10 +39,21 @@ export default class TranslateDialog extends Component {
 		this.submit = this.submit.bind(this);
 	}
 
+	resetState() {
+		this.setState({
+			source: false,
+			target: false,
+			submit: false,
+			result: false
+		});
+	}
+
 	toggleDialog() {
 		this.setState(prevState => ({
 			showDialog: !prevState.showDialog
-		}));
+		}), () => {
+			this.resetState();
+		});
 	}
 
 	setSource(value) {
@@ -56,41 +69,46 @@ export default class TranslateDialog extends Component {
 	}
 
 	submit() {
-		const {source, target} = this.state;
-		const {node, dimensions} = this.props;
-		const nodeType = node.nodeType;
+		this.setState({submit: true}, () => {
+			const {source, target} = this.state;
+			const {node, dimensions, focusedNodeIdentifier} = this.props;
+			const nodeType = node.nodeType;
 
-		const getDimension = (objectValues, key) => {
-			let result = [];
-			let count = 0;
-			for(let i in objectValues) {
-				for(let k in objectValues[i].presets) {
-					if(k === key) {
-						result[Object.keys(dimensions)[i]] = {
-							0: k
-						}
+			const getDimension = (objectValues, key) => {
+				let index = 0;
+				return objectValues.reduce((result, obj, i) => {
+					if (index !== -1) {
+						result[Object.keys(dimensions)[i]] = { [index]: key };
+						index = index + 1;
 					}
-				}
-				count = count + 1;
-			}
-			return result;
-		}
+					return result;
+				}, {});
+			};
 
-		const sourceDimension = getDimension(Object.values(dimensions), source);
-		const targetDimension = getDimension(Object.values(dimensions), target);
+			const sourceDimension = getDimension(Object.values(dimensions), source);
+			const targetDimension = getDimension(Object.values(dimensions), target);
 
-		console.log(source);
-		console.log(nodeType);
-		console.log(target);
+			const formData = new FormData();
+			formData.append('nodeType', nodeType);
+			formData.append('source', JSON.stringify(sourceDimension));
+			formData.append('target', JSON.stringify(targetDimension));
+			formData.append('nodeIdentifier', focusedNodeIdentifier);
 
-		console.log(sourceDimension)
-		console.log(targetDimension)
-
+			fetch('/neos/api/deepl/translate', {method: 'POST', body: formData, redirect: 'follow'})
+				.then(response => response.json())
+				.then(result => {
+					console.log(result)
+					this.setState({submit: false}, () => {
+						this.setState({result: result});
+					});
+				})
+				.catch(error => console.log('error', error));
+		});
 	}
 
 	render() {
 
-		const {showDialog, source, target} = this.state;
+		const {showDialog, source, target, submit, result} = this.state;
 		const {nodeTypeConfiguration, dimensions, node} = this.props;
 
 		const isInArray = () => {
@@ -109,30 +127,39 @@ export default class TranslateDialog extends Component {
 				}
 				{showDialog &&
 					<Dialog
-						title="DeepL Node Translate"
+						title={submit ? 'Translate ...' : 'DeepL Node Translate'}
 						isOpen={showDialog}
 						onRequestClose={() => this.toggleDialog()}
 						id="neos-deeplTranslate"
 						actions={[
 							<Fragment>
-								<Fragment>
+								{!submit && !result &&
 									<Button type="button" style="success" hoverStyle="success" onClick={() => this.submit()} >
 										Start translation
 									</Button>
-									<div style={{display: 'inline-block', marginLeft: '1px'}}>
-										<Button type="button" style="neutral" hoverStyle="brand" onClick={() => this.toggleDialog()} >
-											Cancel
-										</Button>
-									</div>
-								</Fragment>
+								}
+								<div style={{display: 'inline-block', marginLeft: '1px'}}>
+									<Button type="button" style="neutral" hoverStyle="brand" onClick={() => this.toggleDialog()} >
+										{!submit && result ? 'Close' : 'Cancel'}
+									</Button>
+								</div>
 							</Fragment>
 						]}>
 						<Fragment>
 							<div style={{padding: '16px'}}>
-								<div style={{marginBottom: '30px'}}>
-									<TranslateDialogSelect title="Source" dimensions={dimensions} value={source} setValue={(p) => this.setSource(p)} />
-								</div>
-								<TranslateDialogSelect title="Target" dimensions={dimensions} value={target} setValue={(p) => this.setTarget(p)} />
+								{!submit && !result &&
+									<Fragment>
+										<div style={{marginBottom: '30px'}}>
+											<TranslateDialogSelect title="Source" dimensions={dimensions} value={source} setValue={(p) => this.setSource(p)} />
+										</div>
+										<TranslateDialogSelect title="Target" dimensions={dimensions} value={target} setValue={(p) => this.setTarget(p)} />
+									</Fragment>
+								}
+								{!submit && result &&
+									<Fragment>
+										Translation successful.
+									</Fragment>
+								}
 							</div>
 						</Fragment>
 					</Dialog>

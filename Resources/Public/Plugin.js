@@ -1128,6 +1128,8 @@ var _neosUiDecorators = __webpack_require__(/*! @neos-project/neos-ui-decorators
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var TranslateDialog = (_dec = (0, _reactRedux.connect)((0, _plowJs.$transform)({
 	siteNodeSelector: _neosUiReduxStore.selectors.CR.Nodes.siteNodeSelector,
 	focusedNodeIdentifier: _neosUiReduxStore.selectors.CR.Nodes.focusedNodeIdentifierSelector,
@@ -1143,7 +1145,9 @@ var TranslateDialog = (_dec = (0, _reactRedux.connect)((0, _plowJs.$transform)({
 		this.state = {
 			showDialog: false,
 			source: false,
-			target: false
+			target: false,
+			submit: false,
+			result: false
 		};
 		this.toggleDialog = this.toggleDialog.bind(this);
 		this.setSource = this.setSource.bind(this);
@@ -1151,74 +1155,99 @@ var TranslateDialog = (_dec = (0, _reactRedux.connect)((0, _plowJs.$transform)({
 		this.submit = this.submit.bind(this);
 	}
 
+	resetState() {
+		this.setState({
+			source: false,
+			target: false,
+			submit: false,
+			result: false
+		});
+	}
+
 	toggleDialog() {
+		var _this = this;
+
 		this.setState(function (prevState) {
 			return {
 				showDialog: !prevState.showDialog
 			};
+		}, function () {
+			_this.resetState();
 		});
 	}
 
 	setSource(value) {
-		var _this = this;
+		var _this2 = this;
 
 		this.setState({ source: value }, function () {
-			console.log(_this.state.source);
+			console.log(_this2.state.source);
 		});
 	}
 
 	setTarget(value) {
-		var _this2 = this;
+		var _this3 = this;
 
 		this.setState({ target: value }, function () {
-			console.log(_this2.state.target);
+			console.log(_this3.state.target);
 		});
 	}
 
 	submit() {
-		var _state = this.state,
-		    source = _state.source,
-		    target = _state.target;
-		var _props = this.props,
-		    node = _props.node,
-		    dimensions = _props.dimensions;
+		var _this4 = this;
 
-		var nodeType = node.nodeType;
+		this.setState({ submit: true }, function () {
+			var _state = _this4.state,
+			    source = _state.source,
+			    target = _state.target;
+			var _props = _this4.props,
+			    node = _props.node,
+			    dimensions = _props.dimensions,
+			    focusedNodeIdentifier = _props.focusedNodeIdentifier;
 
-		var getDimension = function getDimension(objectValues, key) {
-			var result = [];
-			var count = 0;
-			for (var i in objectValues) {
-				for (var k in objectValues[i].presets) {
-					if (k === key) {
-						result[Object.keys(dimensions)[i]] = {
-							0: k
-						};
+			var nodeType = node.nodeType;
+
+			var getDimension = function getDimension(objectValues, key) {
+				var index = 0;
+				return objectValues.reduce(function (result, obj, i) {
+					if (index !== -1) {
+						result[Object.keys(dimensions)[i]] = _defineProperty({}, index, key);
+						index = index + 1;
 					}
-				}
-				count = count + 1;
-			}
-			return result;
-		};
+					return result;
+				}, {});
+			};
 
-		var sourceDimension = getDimension(Object.values(dimensions), source);
-		var targetDimension = getDimension(Object.values(dimensions), target);
+			var sourceDimension = getDimension(Object.values(dimensions), source);
+			var targetDimension = getDimension(Object.values(dimensions), target);
 
-		console.log(source);
-		console.log(nodeType);
-		console.log(target);
+			var formData = new FormData();
+			formData.append('nodeType', nodeType);
+			formData.append('source', JSON.stringify(sourceDimension));
+			formData.append('target', JSON.stringify(targetDimension));
+			formData.append('nodeIdentifier', focusedNodeIdentifier);
 
-		console.log(sourceDimension);
-		console.log(targetDimension);
+			fetch('/neos/api/deepl/translate', { method: 'POST', body: formData, redirect: 'follow' }).then(function (response) {
+				return response.json();
+			}).then(function (result) {
+				console.log(result);
+				_this4.setState({ submit: false }, function () {
+					_this4.setState({ result: result });
+				});
+			}).catch(function (error) {
+				return console.log('error', error);
+			});
+		});
 	}
 
 	render() {
-		var _this3 = this;
+		var _this5 = this;
 
 		var _state2 = this.state,
 		    showDialog = _state2.showDialog,
 		    source = _state2.source,
-		    target = _state2.target;
+		    target = _state2.target,
+		    submit = _state2.submit,
+		    result = _state2.result;
 		var _props2 = this.props,
 		    nodeTypeConfiguration = _props2.nodeTypeConfiguration,
 		    dimensions = _props2.dimensions,
@@ -1238,40 +1267,36 @@ var TranslateDialog = (_dec = (0, _reactRedux.connect)((0, _plowJs.$transform)({
 			_react.Fragment,
 			null,
 			isInArray() && _react2.default.createElement(_reactUiComponents.IconButton, { icon: 'fas fa-language', onClick: function onClick() {
-					return _this3.toggleDialog();
+					return _this5.toggleDialog();
 				} }),
 			showDialog && _react2.default.createElement(
 				_reactUiComponents.Dialog,
 				{
-					title: 'DeepL Node Translate',
+					title: submit ? 'Translate ...' : 'DeepL Node Translate',
 					isOpen: showDialog,
 					onRequestClose: function onRequestClose() {
-						return _this3.toggleDialog();
+						return _this5.toggleDialog();
 					},
 					id: 'neos-deeplTranslate',
 					actions: [_react2.default.createElement(
 						_react.Fragment,
 						null,
+						!submit && !result && _react2.default.createElement(
+							_reactUiComponents.Button,
+							{ type: 'button', style: 'success', hoverStyle: 'success', onClick: function onClick() {
+									return _this5.submit();
+								} },
+							'Start translation'
+						),
 						_react2.default.createElement(
-							_react.Fragment,
-							null,
+							'div',
+							{ style: { display: 'inline-block', marginLeft: '1px' } },
 							_react2.default.createElement(
 								_reactUiComponents.Button,
-								{ type: 'button', style: 'success', hoverStyle: 'success', onClick: function onClick() {
-										return _this3.submit();
+								{ type: 'button', style: 'neutral', hoverStyle: 'brand', onClick: function onClick() {
+										return _this5.toggleDialog();
 									} },
-								'Start translation'
-							),
-							_react2.default.createElement(
-								'div',
-								{ style: { display: 'inline-block', marginLeft: '1px' } },
-								_react2.default.createElement(
-									_reactUiComponents.Button,
-									{ type: 'button', style: 'neutral', hoverStyle: 'brand', onClick: function onClick() {
-											return _this3.toggleDialog();
-										} },
-									'Cancel'
-								)
+								!submit && result ? 'Close' : 'Cancel'
 							)
 						)
 					)] },
@@ -1281,16 +1306,25 @@ var TranslateDialog = (_dec = (0, _reactRedux.connect)((0, _plowJs.$transform)({
 					_react2.default.createElement(
 						'div',
 						{ style: { padding: '16px' } },
-						_react2.default.createElement(
-							'div',
-							{ style: { marginBottom: '30px' } },
-							_react2.default.createElement(TranslateDialogSelect, { title: 'Source', dimensions: dimensions, value: source, setValue: function setValue(p) {
-									return _this3.setSource(p);
+						!submit && !result && _react2.default.createElement(
+							_react.Fragment,
+							null,
+							_react2.default.createElement(
+								'div',
+								{ style: { marginBottom: '30px' } },
+								_react2.default.createElement(TranslateDialogSelect, { title: 'Source', dimensions: dimensions, value: source, setValue: function setValue(p) {
+										return _this5.setSource(p);
+									} })
+							),
+							_react2.default.createElement(TranslateDialogSelect, { title: 'Target', dimensions: dimensions, value: target, setValue: function setValue(p) {
+									return _this5.setTarget(p);
 								} })
 						),
-						_react2.default.createElement(TranslateDialogSelect, { title: 'Target', dimensions: dimensions, value: target, setValue: function setValue(p) {
-								return _this3.setTarget(p);
-							} })
+						!submit && result && _react2.default.createElement(
+							_react.Fragment,
+							null,
+							'Translation successful.'
+						)
 					)
 				)
 			)

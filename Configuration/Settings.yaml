@@ -33,18 +33,18 @@ Neos:
             additionalResources:
               styleSheets:
                 - 'resource://Neos.Twitter.Bootstrap/Public/3.3/css/bootstrap.min.css'
-#    Ui:
-#      resources:
-##        stylesheets:
-##          'SteinbauerIT.Neos.DeepLNodeTranslate':
-##            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.css"}'
-#        javascript:
+    Ui:
+      resources:
+#        stylesheets:
 #          'SteinbauerIT.Neos.DeepLNodeTranslate':
-#            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.js"}'
-#      frontendConfiguration:
-#        'SteinbauerIT.Neos.DeepLNodeTranslate:Role': '${Security.hasRole("Neos.Neos:Administrator") ? true : false}'
-#        'SteinbauerIT.Neos.DeepLNodeTranslate:NodeTypes': '${Configuration.setting("SteinbauerIT.Neos.DeepLNodeTranslate.nodeTypes")}'
-#        'SteinbauerIT.Neos.DeepLNodeTranslate:Dimensions': '${Configuration.setting("Neos.ContentRepository.contentDimensions")}'
+#            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.css"}'
+        javascript:
+          'SteinbauerIT.Neos.DeepLNodeTranslate':
+            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.js"}'
+      frontendConfiguration:
+        'SteinbauerIT.Neos.DeepLNodeTranslate:Role': '${Security.hasRole("Neos.Neos:Administrator") ? true : false}'
+        'SteinbauerIT.Neos.DeepLNodeTranslate:NodeTypes': '${Configuration.setting("SteinbauerIT.Neos.DeepLNodeTranslate.nodeTypes")}'
+        'SteinbauerIT.Neos.DeepLNodeTranslate:Dimensions': '${Configuration.setting("Neos.ContentRepository.contentDimensions")}'
 
 #SteinbauerIT:
 #  Neos:

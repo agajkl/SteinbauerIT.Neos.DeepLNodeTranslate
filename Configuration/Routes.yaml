@@ -1,5 +1,4 @@
 -
-  name: 'Translate'
   uriPattern: 'neos/api/deepl/translate'
   defaults:
     '@controller': 'Api\Translate'
