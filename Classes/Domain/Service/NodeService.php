@@ -122,7 +122,12 @@ class NodeService
             if(!empty($translatedProperties)) {
                 foreach ($translatedProperties as $translatedPropertyKey => $translatedProperty) {
                     if($newNode->hasProperty($translatedPropertyKey)) {
-                        $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+                        if($translatedPropertyKey === 'uriPathSegment') {
+                            $uriPathSegment = $this->nodeUriPathSegmentGenerator->generateUriPathSegment(null, $translatedProperty);
+                            $newNode->setProperty($translatedPropertyKey, $uriPathSegment);
+                        } else {
+                            $newNode->setProperty($translatedPropertyKey, $translatedProperty);
+                        }
                     }
                 }
             }
