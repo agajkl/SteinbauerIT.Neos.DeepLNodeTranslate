@@ -1,6 +1,7 @@
 <?php
 namespace SteinbauerIT\Neos\DeepLNodeTranslate\Domain\Service;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Neos\Flow\Annotations as Flow;
 
 use Neos\Eel\FlowQuery\FlowQuery;
@@ -97,6 +98,21 @@ class NodeService
         $node = $this->getNodeByNodeIdentifierAndDimensions($nodeIdentifier, $source);
         $translatedProperties = $this->translateProperties((array) $node->getProperties(), $this->getDefinedPropertiesForNodeTypeFromConfiguration($node->getNodeType()->getName()), $source, $target);
         $this->createTranslatedNode($node, $translatedProperties, $source, $target);
+    }
+
+    /**
+     * @param string $nodeIdentifier
+     * @param array $source
+     * @param array $target
+     * @return void
+     */
+    public function translateNodeAndTheirChildren(string $nodeIdentifier, array $source, array $target): void
+    {
+        $startingPoint = $this->getNodeByNodeIdentifierAndDimensions($nodeIdentifier, $source);
+
+        foreach ($this->getNodesRecursive($startingPoint) as $nodeIdentifier) {
+            $this->translateNode($nodeIdentifier, $source, $target);
+        }
     }
 
     /**
@@ -214,6 +230,25 @@ class NodeService
     public function translateInline(array $source, array $target, string $nodeIdentifier): void
     {
         $this->translateNode($nodeIdentifier, $source, $target);
+    }
+
+    /**
+     * @param NodeInterface $node
+     * @return array
+     */
+    private function getNodesRecursive(NodeInterface $node): array
+    {
+        $items = [];
+        foreach ($node->getChildNodes() as $childNode) {
+            if(!$childNode->getNodeType()->isOfType('Neos.Neos:Document')) {
+                if(count($childNode->getChildNodes()) === 0) {
+                    $items[] = $childNode->getIdentifier();
+                } else {
+                    $items = array_merge($items, $this->getNodesRecursive($childNode));
+                }
+            }
+        }
+        return $items;
     }
 
 }

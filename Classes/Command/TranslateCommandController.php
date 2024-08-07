@@ -24,7 +24,7 @@ class TranslateCommandController extends CommandController
     protected $nodeTypes = [];
 
     /**
-     * Translate nodes (Only for test cases)
+     * Translate nodes
      *
      * @param string $nodeType
      * @param string $sourceDimensionKey
@@ -40,7 +40,7 @@ class TranslateCommandController extends CommandController
     }
 
     /**
-     * Translate allnodes (Only for test cases)
+     * Translate allnodes
      *
      * @param string $sourceDimensionKey
      * @param string $sourceDimension
@@ -58,7 +58,7 @@ class TranslateCommandController extends CommandController
     }
 
     /**
-     * Translate node (Only for test cases)
+     * Translate node
      *
      * @param string $nodeIdentifier
      * @param string $sourceDimensionKey
@@ -70,6 +70,28 @@ class TranslateCommandController extends CommandController
     public function nodeCommand(string $nodeIdentifier, string $sourceDimensionKey, string $sourceDimension, string $targetDimensionKey, string $targetDimension)
     {
         $this->nodeService->translateNode($nodeIdentifier, [$sourceDimensionKey => [$sourceDimension]], [$targetDimensionKey => [$targetDimension]]);
+        $this->outputLine($nodeIdentifier . ' translated from ' . $sourceDimension . ' to ' . $targetDimension);
+    }
+
+    /**
+     * Translate node
+     *
+//     * @param string $nodeIdentifier
+//     * @param string $sourceDimensionKey
+//     * @param string $sourceDimension
+//     * @param string $targetDimensionKey
+//     * @param string $targetDimension
+     * @return void
+     */
+    public function nodeByIdentifierAndTheirChildrenCommand(/*string $nodeIdentifier, string $sourceDimensionKey, string $sourceDimension, string $targetDimensionKey, string $targetDimension*/)
+    {
+        $nodeIdentifier = '4784d153-1bad-495c-a50e-b1547858e7e1';
+        $sourceDimensionKey = 'language';
+        $sourceDimension = 'de';
+        $targetDimensionKey = $sourceDimensionKey;
+        $targetDimension = 'en';
+
+        $this->nodeService->translateNodeAndTheirChildren($nodeIdentifier, [$sourceDimensionKey => [$sourceDimension]], [$targetDimensionKey => [$targetDimension]]);
         $this->outputLine($nodeIdentifier . ' translated from ' . $sourceDimension . ' to ' . $targetDimension);
     }
 
