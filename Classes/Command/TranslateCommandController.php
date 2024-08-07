@@ -83,14 +83,8 @@ class TranslateCommandController extends CommandController
 //     * @param string $targetDimension
      * @return void
      */
-    public function nodeByIdentifierAndTheirChildrenCommand(/*string $nodeIdentifier, string $sourceDimensionKey, string $sourceDimension, string $targetDimensionKey, string $targetDimension*/)
+    public function nodeByIdentifierAndTheirChildrenCommand(string $nodeIdentifier, string $sourceDimensionKey, string $sourceDimension, string $targetDimensionKey, string $targetDimension)
     {
-        $nodeIdentifier = '4784d153-1bad-495c-a50e-b1547858e7e1';
-        $sourceDimensionKey = 'language';
-        $sourceDimension = 'de';
-        $targetDimensionKey = $sourceDimensionKey;
-        $targetDimension = 'en';
-
         $this->nodeService->translateNodeAndTheirChildren($nodeIdentifier, [$sourceDimensionKey => [$sourceDimension]], [$targetDimensionKey => [$targetDimension]]);
         $this->outputLine($nodeIdentifier . ' translated from ' . $sourceDimension . ' to ' . $targetDimension);
     }
