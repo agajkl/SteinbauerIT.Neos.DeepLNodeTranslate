@@ -35,9 +35,9 @@ Neos:
                 - 'resource://Neos.Twitter.Bootstrap/Public/3.3/css/bootstrap.min.css'
     Ui:
       resources:
-#        stylesheets:
-#          'SteinbauerIT.Neos.DeepLNodeTranslate':
-#            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.css"}'
+        stylesheets:
+          'SteinbauerIT.Neos.DeepLNodeTranslate':
+            resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.css"}'
         javascript:
           'SteinbauerIT.Neos.DeepLNodeTranslate':
             resource: '${"resource://SteinbauerIT.Neos.DeepLNodeTranslate/Public/Plugin.js"}'
@@ -45,10 +45,24 @@ Neos:
         'SteinbauerIT.Neos.DeepLNodeTranslate:Role': '${Security.hasRole("Neos.Neos:Administrator") ? true : false}'
         'SteinbauerIT.Neos.DeepLNodeTranslate:NodeTypes': '${Configuration.setting("SteinbauerIT.Neos.DeepLNodeTranslate.nodeTypes")}'
         'SteinbauerIT.Neos.DeepLNodeTranslate:Dimensions': '${Configuration.setting("Neos.ContentRepository.contentDimensions")}'
+        'SteinbauerIT.Neos.DeepLNodeTranslate:Configuration': '${Configuration.setting("SteinbauerIT.Neos.DeepLNodeTranslate.configuration")}'
 
 #SteinbauerIT:
 #  Neos:
 #    DeepLNodeTranslate:
+#      configuration:
+#        sourceDimensionKeys:
+#          - language
+#        targetDimensionKeys:
+#          - language
+#        sourceDimensions:
+#          language:
+#            - de
+#            - en
+#        targetDimensions:
+#          language:
+#            - de
+#            - en
 #      authKey: 'your-auth-key'
 #      nodeTypes:
 #        'Neos.NodeTypes:Headline':

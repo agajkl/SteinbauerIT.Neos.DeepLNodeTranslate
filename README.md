@@ -16,6 +16,19 @@ composer require steinbauerit/neos-deepltranslate
 SteinbauerIT:
   Neos:
     DeepLNodeTranslate:
+      configuration:
+        sourceDimensionKeys:
+          - language
+        targetDimensionKeys:
+          - language
+        sourceDimensions:
+          language:
+            - de
+            - en
+        targetDimensions:
+          language:
+            - de
+            - en
       authKey: 'your-auth-key'
       nodeTypes:
         'Neos.NodeTypes:Headline':

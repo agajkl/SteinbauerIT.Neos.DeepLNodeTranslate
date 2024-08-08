@@ -1,0 +1,16 @@
+'SteinbauerIT.Neos.DeepLNodeTranslate:Mixin.Translate':
+  abstract: true
+  ui:
+    inspector:
+      groups:
+        translate:
+          label: DeepL Translate
+          icon: fas fa-language
+          tab: meta
+          position: start
+          collapsed: false
+      views:
+        translateView:
+          label: Translate content
+          group: translate
+          view: 'SteinbauerIT.Neos.DeepLNodeTranslate/Inspector/Views/TranslateView'

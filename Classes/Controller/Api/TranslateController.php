@@ -38,4 +38,19 @@ final class TranslateController extends ActionController
         $this->view->assign('value', ['response' => true]);
     }
 
+    /**
+     * @param string $nodeIdentifier
+     * @param string $sourceDimensionKey
+     * @param string $sourceDimension
+     * @param string $targetDimensionKey
+     * @param string $targetDimension
+     * @return void
+     * @Flow\SkipCsrfProtection
+     */
+    public function translateNodeAndTheirChildrenByIdentifierAction(string $nodeIdentifier, string $sourceDimensionKey, string $sourceDimension, string $targetDimensionKey, string $targetDimension): void
+    {
+        $this->nodeService->translateNodeAndTheirChildren($nodeIdentifier, [$sourceDimensionKey => [$sourceDimension]], [$targetDimensionKey => [$targetDimension]]);
+        $this->view->assign('value', ['response' => true]);
+    }
+
 }

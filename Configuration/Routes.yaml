@@ -5,3 +5,11 @@
     '@package': 'SteinbauerIT.Neos.DeepLNodeTranslate'
     '@action': 'translate'
     '@format': 'json'
+
+-
+  uriPattern: 'neos/api/deepl/translatenodeandtheirchildrenbyidentifier'
+  defaults:
+    '@controller': 'Api\Translate'
+    '@package': 'SteinbauerIT.Neos.DeepLNodeTranslate'
+    '@action': 'translateNodeAndTheirChildrenByIdentifier'
+    '@format': 'json'
