@@ -110,6 +110,8 @@ class NodeService
     {
         $startingPoint = $this->getNodeByNodeIdentifierAndDimensions($nodeIdentifier, $source);
 
+        $this->translateNode($startingPoint->getIdentifier(), $source, $target);
+
         foreach ($this->getNodesRecursive($startingPoint) as $nodeIdentifier) {
             $this->translateNode($nodeIdentifier, $source, $target);
         }
